@@ -3,9 +3,9 @@ from PIL import ImageTk
 from datetime import datetime
 
 # Set the constants.
-YELLOW = "#f7f5dd"
-FONT_NAME = "Calibri"
-WORK_MIN = 25 * 60
+YELLOW = "#FFF59D"
+FONT_NAME = "Segoe UI"
+DEFAULT_TIME_PERIOD = 1_500
 
 # Initialize variables.
 is_paused = False
@@ -13,6 +13,8 @@ is_reset = False
 is_running = False
 should_start = True
 daily_sessions = 0
+dont_upd_time = False
+final_time_period = DEFAULT_TIME_PERIOD
 
 # Create the application window.
 window = Tk()
@@ -24,28 +26,49 @@ def is_pause_status():
     """
 Pauses the timer when pause button is pressed.
     """
-    global is_paused, should_start
+    global is_paused, should_start, dont_upd_time
     if is_running:  # Prevents bugs from multiple and consecutive pause presses.
         is_paused = True
+        dont_upd_time = True
     should_start = True  # If timer paused, this should be true.
+
 
 
 def reset_status():
     """
 Resets the timer when reset button is pressed.
     """
-    global is_reset, WORK_MIN, should_start
+    global dont_upd_time, is_reset, final_time_period, should_start
     if is_running:  # Prevents bugs from multiple and consecutive reset presses
         # Prevents timer from a delay on start press when reset is pressed after a pause.
         is_reset = True
-    WORK_MIN = 25 * 60  # Reset variable.
+    final_time_period = 25 * 60  # Reset variable.
     canvas.itemconfig(timer, text="25:00")  # Reset timer.
     should_start = True  # If timer reset, this should be true.
+    dont_upd_time = False
+
+
+def increase_time_period():
+    global final_time_period
+    if final_time_period < 3600 and not is_running and not dont_upd_time:
+        final_time_period += 300
+        upd_minutes, upd_seconds = divmod(final_time_period, 60)
+        formatted_time = f"{upd_minutes:02d}:{upd_seconds:02d}"
+        canvas.itemconfig(timer, text=formatted_time)
+
+
+def decrease_time_period():
+    global final_time_period
+    if final_time_period > 600 and not is_running and not dont_upd_time:
+        final_time_period -= 300
+        upd_minutes, upd_seconds = divmod(final_time_period, 60)
+        formatted_time = f"{upd_minutes:02d}:{upd_seconds:02d}"
+        canvas.itemconfig(timer, text=formatted_time)
 
 
 def should_start_status():
     """
-Starts countdown ONLY if not already running.
+Starts countdown ONLY if it has not already running.
     """
     if should_start:
         start_countdown()
@@ -55,16 +78,17 @@ def start_countdown():
     """
 Manages the countdown timer and updates the display.
     """
-    global WORK_MIN, is_paused, daily_sessions, is_reset, is_running, should_start
-    if WORK_MIN >= 0 and not is_paused and not is_reset:
-        minutes, seconds = divmod(WORK_MIN, 60)
+    global dont_upd_time, final_time_period, is_paused, daily_sessions, is_reset, is_running, should_start
+    if final_time_period >= 0 and not is_paused and not is_reset:
+        minutes, seconds = divmod(final_time_period, 60)
         formatted_time = f"{minutes:02d}:{seconds:02d}"
         canvas.itemconfig(timer, text=formatted_time)
         is_running = True
-        WORK_MIN -= 1
+        final_time_period -= 1
         window.after(1000, start_countdown)  # Updates every second.
         should_start = False
-        if WORK_MIN < 0:
+        dont_upd_time = False
+        if final_time_period < 0:
             daily_sessions += 1
             reset_status()
     else:
@@ -161,5 +185,17 @@ history_button = Button(text="History", font=(FONT_NAME, 12, "bold"), command=sh
 history_button_window = canvas.create_window(500, 460, window=history_button)
 history_button.bind("<Enter>", hover_over_button)
 history_button.bind("<Leave>", on_leave)
+
+# Creates the + and - buttons.
+increase_button = Button(text="▲", font=(FONT_NAME, 8, "bold"), command=increase_time_period, bg="white", fg="green",
+                         highlightthickness=0)
+decrease_button = Button(text="▼", font=(FONT_NAME, 8, "bold"), command=decrease_time_period, bg="white", fg="green",
+                         highlightthickness=0)
+increase_button_window = canvas.create_window(425, 292, window=increase_button)
+decrease_button_window = canvas.create_window(425, 312, window=decrease_button)
+increase_button.bind("<Enter>", hover_over_button)
+decrease_button.bind("<Enter>", hover_over_button)
+increase_button.bind("<Leave>", on_leave)
+decrease_button.bind("<Leave>", on_leave)
 
 window.mainloop()
