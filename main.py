@@ -33,7 +33,6 @@ Pauses the timer when pause button is pressed.
     should_start = True  # If timer paused, this should be true.
 
 
-
 def reset_status():
     """
 Resets the timer when reset button is pressed.
@@ -49,6 +48,9 @@ Resets the timer when reset button is pressed.
 
 
 def increase_time_period():
+    """
+    Increases the duration of study periods by 5 minutes.
+    """
     global final_time_period
     if final_time_period < 3600 and not is_running and not dont_upd_time:
         final_time_period += 300
@@ -58,6 +60,9 @@ def increase_time_period():
 
 
 def decrease_time_period():
+    """
+    Decreases the duration of study periods by 5 minutes.
+    """
     global final_time_period
     if final_time_period > 600 and not is_running and not dont_upd_time:
         final_time_period -= 300
