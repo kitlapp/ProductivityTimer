@@ -11,13 +11,13 @@ This repository contains a custom-built productivity timer application created u
 1. 1 X main file (.py) as the application's core code.
 2. 1 X image (.jpg) used in the application.
 3. The README file
-   --> The .idea file is just IDE related and it is not required.
+   <br>--> The .idea file is just IDE related and it is not required.
 
 *** HOW TO SET UP THE ENVIRONMENT ***
 
 1) Download the project as a zip file or clone the repository to your local machine.
 2) Open Anaconda Prompt and type:
-   --> conda create -n <YourEnvName> python=3.11.8 tk=8.6.12 pillow=10.2.0 -c conda-forge
+   <br>--> conda create -n <YourEnvName> python=3.11.8 tk=8.6.12 pillow=10.2.0 -c conda-forge
 3) Activate the environment and configure it with your preferred IDE (e.g., PyCharm).
 4) Enjoy!
 
